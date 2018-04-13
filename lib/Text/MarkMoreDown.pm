@@ -1,3 +1,21 @@
+# MarkMoreDown -- A modification of John Gruber's original Markdown
+#	that adds new features
+#
+# Original Codes:
+#   MarkDown- Copyright (c) 2004-2007 John Gruber
+#     <http://daringfireball.net/projects/markdown/>
+#   MultiMarkdown Version 2.0.b6- Copyright (c) 2005-2009 Fletcher T. Penney
+#     <http://fletcherpenney.net/>
+#
+#   ---
+#
+#   MarkMoreDown (c) 2017
+#     <http://fletcherpenney.net/>
+#
+# MarkMoreDown Version 0.0.30
+#
+# Based on MultiMarkdown Version 2.0.b6
+
 package Text::MarkMoreDown;
 require 5.008_000;
 use strict;
@@ -164,13 +182,7 @@ sub _Markdown {
 
     $text = $self->_ConvertCopyright($text);
 
-    # MMD Only
-    if (lc($self->{document_format}) =~ /^complete\s*$/) {
-        return $self->_xhtmlMetaData() . "<body>\n" . $text . "\n</body>\n</html>";
-    }
-    else {
-        return $self->_textMetaData() . $text . "\n";
-    }
+    return ($text, $self->{_metadata});
 
 }
 
@@ -2052,57 +2064,6 @@ sub _Id2Footnote {
     return $footnote;
 }
 
-sub _xhtmlMetaData {
-    my ($self) = @_;
-    # FIXME: Should not assume encoding
-    my $result; # FIXME: This breaks some things in IE 6- = qq{<?xml version="1.0" encoding="UTF-8" ?>\n};
-
-    # This screws up xsltproc - make sure to use `-nonet -novalid` if you
-    #   have difficulty
-    $result .= qq{<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n};
-
-    $result.= "<html>\n\t<head>\n";
-
-    foreach my $key (sort keys %{$self->{_metadata}} ) {
-        if (lc($key) eq "title") {
-            $result.= "\t\t<title>" . encode_entities($self->{_metadata}{$key}) . "</title>\n";
-        }
-        elsif (lc($key) eq "css") {
-            $result.= qq[\t\t<link type="text/css" rel="stylesheet" href="$self->{_metadata}{$key}"$self->{empty_element_suffix}\n];
-        }
-		elsif( lc($key) eq "xhtml header") {
-			$result .= qq[\t\t$self->{_metadata}{$key}\n]
-		}
-        else {
-            $result.= qq[\t\t<meta name="] . encode_entities($key) . qq[" ]
-                . qq[content="] . encode_entities($self->{_metadata}{$key}) . qq["$self->{empty_element_suffix}\n];
-        }
-    }
-    $result.= "\t</head>\n";
-
-    return $result;
-}
-
-sub _textMetaData {
-    my ($self) = @_;
-    my $result = "";
-
-    return $result if $self->{strip_metadata};
-
-    foreach my $key (sort keys %{$self->{_metadata}} ) {
-        $result .= "$key: $self->{_metadata}{$key}\n";
-    }
-    $result =~ s/\s*\n/<br$self->{empty_element_suffix}\n/g;
-
-    if ($result ne "") {
-        $result =~ s/^/<div id="markmod_metadata" class="markmod_metadata">/;
-        $result =~ s/$/<\/div>/;
-        $result.= "\n";
-    }
-
-    return $result;
-}
-
 sub _DoTables {
     my ($self, $text) = @_;
 
@@ -2745,3 +2706,279 @@ sub _ConvertCopyright {
 1;
 
 __END__
+
+=head1 NAME
+
+Text::MarkMoreDown - Convert MarkMoreDown syntax to (X)HTML
+
+=head1 SYNOPSIS
+
+    use Text::MarkMoreDown 'markmod';
+    my $html = markmod($text);
+
+    use Text::MarkMoreDown 'markmod';
+    my $html = markmod( $text, {
+        empty_element_suffix => '>',
+        tab_width => 2,
+    } );
+
+    use Text::MarkMoreDown;
+    my $m = Text::MarkMoreDown->new;
+    my $html = $m->markdown($text);
+
+    use Text::MarkMoreDown;
+    my $m = Text::MarkMoreDown->new(
+        empty_element_suffix => '>',
+        tab_width => 2,
+    );
+    my $html = $m->markdown( $text );
+
+=head1 DESCRIPTION
+
+Markdown is a text-to-HTML filter; it translates an easy-to-read /
+easy-to-write structured text format into HTML. Markdown's text format
+is most similar to that of plain text email, and supports features such
+as headers, *emphasis*, code blocks, blockquotes, and links.
+
+Markdown's syntax is designed not as a generic markup language, but
+specifically to serve as a front-end to (X)HTML. You can use span-level
+HTML tags anywhere in a Markdown document, and you can use block level
+HTML tags (C<< <div> >>, C<< <table> >> etc.). Note that by default
+Markdown isn't interpreted in HTML block-level elements, unless you add
+a C<markdown=1"> attribute to the element. See L<Text::Markdown> for
+details.
+
+This module implements the MarkMoreDown markdown syntax extensions from:
+
+    http://kiavash.one/markmoredown/
+
+=head1 SYNTAX
+
+For more information about (original) Markdown's syntax, see:
+
+    http://daringfireball.net/projects/markdown/
+
+This module implements MarkMoreDown, which is an extension to Markdown..
+
+The extension is documented at:
+
+    http://kiavash.one/markmoredown/
+
+=head1 OPTIONS
+
+MarkMoreDown supports a number of options to it's processor which control the behaviour of the output document.
+
+These options can be supplied to the constructor, on in a hash with the individual calls to the markdown method.
+See the synopsis for examples of both of the above styles.
+
+The options for the processor are:
+
+=over
+
+=item use_metadata
+
+Controls the metadata options below.
+
+=item strip_metadata
+
+If true, any metadata in the input document is removed from the output document (note - does not take effect in complete document format).
+
+=item empty element suffix
+
+This option can be used to generate normal HTML output. By default, it is ' />', which is xHTML, change to '>' for normal HTML.
+
+=item img_ids
+
+Controls if <img> tags generated have an id attribute. Defaults to true.
+Turn off for compatibility with the original markdown.
+
+=item heading_ids
+
+Controls if <hX> tags generated have an id attribute. Defaults to true.
+Turn off for compatibility with the original markdown.
+
+=item bibliography_title
+
+The title of the generated bibliography, defaults to 'Bibliography'.
+
+=item tab_width
+
+Controls indent width in the generated markup, defaults to 4
+
+=item disable_tables
+
+If true, this disables the MarkMoreDown table handling.
+
+=item disable_footnotes
+
+If true, this disables the MarkMoreDown footnotes handling.
+
+=item disable_bibliography
+
+If true, this disables the MarkMoreDown bibliography/citation handling.
+
+=item disable_definition_lists
+
+If true, this disables the MarkMoreDown definition list handling.
+
+=back
+
+A number of possible items of metadata can also be supplied as options.
+Note that if the use_metadata is true then the metadata in the document will overwrite the settings on command line.
+
+Metadata options supported are:
+
+=over
+
+=item document_format
+
+=item use_wikilinks
+
+=item base_url
+
+=item self_url - The document url is prepended to the "#" anchor of footnotes.
+
+=back
+
+=head1 METADATA
+
+MarkMoreDown supports the concept of 'metadata', which allows you to specify a number of formatting options
+within the document itself. Metadata should be placed in the top few lines of a file, on value per line as colon separated key/value pairs.
+The metadata should be separated from the document with a blank line.
+
+Most metadata keys are also supported as options to the constructor, or options
+to the markdown method itself. (Note, as metadata, keys contain space, whereas options the keys are underscore separated.)
+
+You can attach arbitrary metadata to a document, which is output in HTML <META> tags if unknown, see t/11document_format.t for more info.
+
+A list of 'known' metadata keys, and their effects are listed below:
+
+=over
+
+=item document format
+
+If set to 'complete', MarkMoreDown will render an entire xHTML page, otherwise it will render a document fragment
+
+=over
+
+=item css
+
+Sets a CSS file for the file, if in 'complete' document format.
+
+=item title
+
+Sets the page title, if in 'complete' document format.
+
+=back
+
+=item use wikilinks
+
+If set to '1' or 'on', causes links that are WikiWords to automatically be processed into links.
+
+=item base url
+
+This is the base URL for referencing wiki pages. In this is not supplied, all wiki links are relative.
+
+=back
+
+=head1 METHODS
+
+=head2 new
+
+A simple constructor, see the SYNTAX and OPTIONS sections for more information.
+
+=cut
+
+=head2 markdown
+
+The main function as far as the outside world is concerned. See the SYNOPSIS
+for details on use.
+
+=cut
+
+=head1 BUGS
+
+To file bug reports or feature requests please send email to:
+
+    bug-Text-Markdown@rt.cpan.org
+
+Please include with your report: (1) the example input; (2) the output
+you expected; (3) the output Markdown actually produced.
+
+=head1 VERSION HISTORY
+
+See the Changes file for detailed release notes for this version.
+
+=head1 AUTHOR
+
+    John Gruber
+    http://daringfireball.net/
+
+    PHP port and other contributions by Michel Fortin
+    http://michelf.com/
+
+    MarkMoreDown changes by Fletcher Penney
+    http://fletcher.freeshell.org/
+
+    CPAN Module Text::MarkMoreDown (based on Text::Markdown by Sebastian
+    Riedel) originally by Darren Kulp (http://kulp.ch/)
+
+    This module is maintained by: Tomas Doran http://www.bobtfish.net/
+
+=head1 THIS DISTRIBUTION
+
+Please note that this distribution is a fork of Fletcher Penny's MarkMoreDown project,
+and it *is not* in any way blessed by him.
+
+Whilst this code aims to be compatible with the original MarkMoreDown (and incorporates
+and passes the MarkMoreDown test suite) whilst fixing a number of bugs in the original -
+there may be differences between the behaviour of this module and MarkMoreDown. If you find
+any differences where you believe Text::MarkMoreDown behaves contrary to the MarkMoreDown spec,
+please report them as bugs.
+
+=head1 SOURCE CODE
+
+You can find the source code repository for L<Text::Markdown> and L<Text::MarkMoreDown>
+on GitHub at <http://github.com/bobtfish/text-markdown>.
+
+=head1 COPYRIGHT AND LICENSE
+
+Original Code Copyright (c) 2003-2004 John Gruber
+<http://daringfireball.net/>
+All rights reserved.
+
+MarkMoreDown changes Copyright (c) 2005-2006 Fletcher T. Penney
+<http://fletcher.freeshell.org/>
+All rights reserved.
+
+Text::MarkMoreDown changes Copyright (c) 2006-2009 Darren Kulp
+<http://kulp.ch> and Tomas Doran <http://www.bobtfish.net>
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+* Neither the name "Markdown" nor the names of its contributors may
+  be used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+This software is provided by the copyright holders and contributors "as
+is" and any express or implied warranties, including, but not limited
+to, the implied warranties of merchantability and fitness for a
+particular purpose are disclaimed. In no event shall the copyright owner
+or contributors be liable for any direct, indirect, incidental, special,
+exemplary, or consequential damages (including, but not limited to,
+procurement of substitute goods or services; loss of use, data, or
+profits; or business interruption) however caused and on any theory of
+liability, whether in contract, strict liability, or tort (including
+negligence or otherwise) arising in any way out of the use of this
+software, even if advised of the possibility of such damage.
+
+=cut
