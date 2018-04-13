@@ -8,10 +8,10 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile
 (
-  NAME             => 'Markmoredown',
+  NAME             => 'Text::Markmoredown',
   AUTHOR           => 'Kiavash',
   VERSION_FROM     => 'lib/Text/Markmoredown.pm',
-  ABSTRACT         => 'markdown parser',
+  ABSTRACT         => 'MarkMoreDown parser',
   LICENSE          => 'mit',
   EXE_FILES        => [
       "bin/markmod"
