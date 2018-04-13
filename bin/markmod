@@ -33,9 +33,7 @@ my $file = shift;
         }
         pre {border-bottom: 3px dashed #777; padding: 10px;}
         body {
-            direction: rtl;
-            text-align: right;
-            font-family: Vazir;
+            font-family: serif;
             font-size: 14pt;
             padding: 0 100px;
         }

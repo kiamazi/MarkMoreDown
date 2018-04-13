@@ -1,4 +1,4 @@
 bin/markmod
-lib/Text/MarkMoreDown.pm
+lib/Text/Markmoredown.pm
 Makefile.PL
 MANIFEST

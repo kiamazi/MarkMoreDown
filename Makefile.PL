@@ -10,7 +10,7 @@ WriteMakefile
 (
   NAME             => 'MarkMoreDown',
   AUTHOR           => 'Kiavash',
-  VERSION_FROM     => 'lib/Text/MarkMoreDown.pm',
+  VERSION_FROM     => 'lib/Text/Markmoredown.pm',
   ABSTRACT         => 'markdown parser',
   LICENSE          => 'mit',
   EXE_FILES        => [
