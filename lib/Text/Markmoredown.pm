@@ -3318,8 +3318,9 @@ please report them as bugs.
 
 =head1 SOURCE CODE
 
-You can find the source code repository for L<Text::Markmdown> and L<Text::Markdoredown>
-on GitHub at <http://github.com/bobtfish/text-markdown>.
+You can find the source code repository for L<Text::Markmdown> and L<Text::Markmoredown>
+on GitHub at <http://github.com/bobtfish/text-markdown> and
+<https://github.com/kiamazi/markmoredown>.
 
 =head1 COPYRIGHT AND LICENSE
 
