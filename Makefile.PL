@@ -8,7 +8,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile
 (
-  NAME             => 'MarkMoreDown',
+  NAME             => 'Markmoredown',
   AUTHOR           => 'Kiavash',
   VERSION_FROM     => 'lib/Text/Markmoredown.pm',
   ABSTRACT         => 'markdown parser',
