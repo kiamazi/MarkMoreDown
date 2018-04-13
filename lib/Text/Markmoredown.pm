@@ -2833,7 +2833,7 @@ B<Deleted/Inserted Text>
 
     ~~this is incorrect ~> this is correct~~
 
-    <de>this is incorrect</del> <ins>this is correct</ins>
+    <del>this is incorrect</del> <ins>this is correct</ins>
 
 one space before and after ~> is optional
 
