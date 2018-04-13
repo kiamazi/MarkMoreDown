@@ -3228,10 +3228,12 @@ or
 
 =head1 OPTIONS
 
-MarkMoreDown supports a number of options to it's processor which control the behaviour of the output document.
+MarkMoreDown supports a number of options to it's processor which control the
+behaviour of the output document.
 
-These options can be supplied to the constructor, on in a hash with the individual calls to the markdown method.
-See the synopsis for examples of both of the above styles.
+These options can be supplied to the constructor, on in a hash with the
+individual calls to the markdown method.See the synopsis for examples of both
+of the above styles.
 
 The options for the processor are:
 
