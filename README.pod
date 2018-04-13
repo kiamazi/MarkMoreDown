@@ -67,7 +67,7 @@ B<difference to standard markdown>
 optional labels
 
     ## h2 #:head-label
-    #### h4 ########::my-label
+    #### h4 ######## :my-label
 
     <h2 id="head-label">h2</h2>
     <h4 id="my-label">h4</h4>
