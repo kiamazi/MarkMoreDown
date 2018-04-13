@@ -16,7 +16,7 @@
 #
 # Based on MultiMarkdown Version 2.0.b6
 
-package Text::MarkMoreDown;
+package Text::Markmoredown;
 require 5.008_000;
 use strict;
 use warnings;
@@ -67,25 +67,16 @@ foreach my $char (split //, '\\`*_{}[]()>#+-.!~') {
 sub new {
     my ($class, %p) = @_;
 
-    # Default metadata to 1
-    $p{use_metadata} = 1 unless exists $p{use_metadata};
-    # Squash value to [01]
-    $p{use_metadata} = $p{use_metadata} ? 1 : 0;
-
     $p{base_url} ||= ''; # This is the base url to be used for WikiLinks
 
     $p{tab_width} = 4 unless (defined $p{tab_width} and $p{tab_width} =~ m/^\d+$/);
 
     $p{document_format} ||= '';
 
-    $p{empty_element_suffix} ||= ' />'; # Change to ">" for HTML output
-
-    #$p{heading_ids} = defined $p{heading_ids} ? $p{heading_ids} : 1;
+    $p{empty_element_suffix} ||= '>'; # Change to " />" for XHTML output
 
     $p{heading_ids} = defined $p{heading_ids} ? $p{heading_ids} : 1;
     $p{img_ids}     = defined $p{img_ids}     ? $p{img_ids}     : 1;
-
-    $p{bibliography_title} ||= 'Bibliography'; # FIXME - Test and document, can also be in metadata!
 
     $p{self_url} ||= ''; # Used in footnotes to prepend anchors
 
@@ -130,7 +121,6 @@ sub _CleanUpRunData {
     $self->{_used_footnotes}  = []; # Why do we need 2 data structures for footnotes? FIXME
     $self->{_used_references} = []; # Ditto for references
     $self->{_citation_counter} = 0;
-    $self->{_metadata} = {};
     $self->{_attributes}  = {}; # Used for extra attributes on links / images.
     $self->{_urls}        = $options->{urls} ? $options->{urls} : {}; # FIXME - document passing this option (tested in 05options.t).
     $self->{_titles}      = {};
@@ -153,9 +143,6 @@ sub _Markdown {
 
     $text = $self->_CleanUpDoc($text);
 
-    # MMD only. Strip out MetaData
-    $text = $self->_ParseMetaData($text) if ($self->{use_metadata} || $self->{strip_metadata});
-
     $text = $self->_DoCodeFences($text);
 
     # Turn block-level HTML blocks into hash entries
@@ -163,18 +150,15 @@ sub _Markdown {
 
     $text = $self->_StripLinkDefinitions($text);
 
-    # MMD only
     $text = $self->_StripMarkdownReferences($text);
 
     $text = $self->_RunBlockGamut($text, {wrap_in_p_tags => 1});
 
-    # MMD Only
     $text = $self->_DoMarkdownCitations($text) unless $self->{disable_bibliography};
     $text = $self->_DoFootnotes($text) unless $self->{disable_footnotes};
 
     $text = $self->_UnescapeSpecialChars($text);
 
-    # MMD Only
     # This must follow _UnescapeSpecialChars
     $text = $self->_FixFootnoteParagraphs($text) unless $self->{disable_footnotes};  # TODO: remove. Doesn't make any difference to test suite pass/failure
     $text .= $self->_PrintFootnotes() unless $self->{disable_footnotes};
@@ -182,7 +166,7 @@ sub _Markdown {
 
     $text = $self->_ConvertCopyright($text);
 
-    return ($text, $self->{_metadata});
+    return $text;
 
 }
 
@@ -1645,55 +1629,6 @@ sub _DoBlockQuotes {
 }
 
 
-# FIXME - This is really really ugly!
-sub _ParseMetaData {
-    my ($self, $text) = @_;
-    my $clean_text = "";
-
-    my ($inMetaData, $currentKey) = (1, '');
-
-    foreach my $line ( split /\n/, $text ) {
-        $line =~ /^\s*$/ and $inMetaData = 0 and $clean_text .= $line and next;
-        if ($inMetaData) {
-            next unless $self->{use_metadata}; # We can come in here as use_metadata => 0, strip_metadata => 1
-            if ($line =~ /^([a-zA-Z0-9][0-9a-zA-Z _-]+?):\s*(.*)$/ ) {
-                $currentKey = $1;
-                $currentKey =~ s/  / /g;
-                $self->{_metadata}{$currentKey} = defined $2 ? $2 : '';
-                if (lc($currentKey) eq "format") {
-                    $self->{document_format} = $self->{_metadata}{$currentKey};
-                }
-                if (lc($currentKey) eq "base url") {
-                    $self->{base_url} = $self->{_metadata}{$currentKey};
-                }
-                if (lc($currentKey) eq "bibliography title") {
-                    $self->{bibliography_title} = $self->{_metadata}{$currentKey};
-                    $self->{bibliography_title} =~ s/\s*$//;
-                }
-            }
-            else {
-                if ($currentKey eq "") {
-                    # No metadata present
-                    $clean_text .= "$line\n";
-                    $inMetaData = 0;
-                    next;
-                }
-                if ($line =~ /^\s*(.+)$/ ) {
-                    $self->{_metadata}{$currentKey} .= "\n$1";
-                }
-            }
-        }
-        else {
-            $clean_text .= "$line\n";
-        }
-    }
-
-    # Recheck for leading blank lines
-    $clean_text =~ s/^\n+//s;
-
-    return $clean_text;
-}
-
 # FIXME - This is really ugly, why do we match stuff and substitute it with the thing we just matched?
 sub _GenerateImageCrossRefs {
     my ($self, $text) = @_;
@@ -2393,7 +2328,7 @@ sub _PrintMarkdownBibliography {
     $result .= "</div>";
 
     if ($citation_counter > 0) {
-        $result = qq[\n\n<div class="bibliography">\n<hr$self->{empty_element_suffix}\n<p>$self->{bibliography_title}</p>\n\n] . $result;
+        $result = qq[\n\n<div class="bibliography">\n<hr$self->{empty_element_suffix}\n\n] . $result;
     }
     else {
         $result = "";
@@ -2709,7 +2644,7 @@ __END__
 
 =head1 NAME
 
-Text::MarkMoreDown - Convert MarkMoreDown syntax to (X)HTML
+Text::MarkMoreDown - Convert MarkMoreDown syntax to HTML
 
 =head1 SYNOPSIS
 
@@ -2735,34 +2670,537 @@ Text::MarkMoreDown - Convert MarkMoreDown syntax to (X)HTML
 
 =head1 DESCRIPTION
 
-Markdown is a text-to-HTML filter; it translates an easy-to-read /
-easy-to-write structured text format into HTML. Markdown's text format
-is most similar to that of plain text email, and supports features such
-as headers, *emphasis*, code blocks, blockquotes, and links.
-
-Markdown's syntax is designed not as a generic markup language, but
-specifically to serve as a front-end to (X)HTML. You can use span-level
-HTML tags anywhere in a Markdown document, and you can use block level
-HTML tags (C<< <div> >>, C<< <table> >> etc.). Note that by default
-Markdown isn't interpreted in HTML block-level elements, unless you add
-a C<markdown=1"> attribute to the element. See L<Text::Markdown> for
-details.
-
-This module implements the MarkMoreDown markdown syntax extensions from:
-
-    http://kiavash.one/markmoredown/
+MarkMoreDown is a free MIT-licensed Ruby library for parsing and converting
+a superset of Markdown. It is supports standard Markdown (with some minor
+modifications) and various extensions that have inspired by PHP Markdown Extra,
+MultiMarkdown, kramdown and etc.
 
 =head1 SYNTAX
 
-For more information about (original) Markdown's syntax, see:
+=head2 Headings
 
-    http://daringfireball.net/projects/markdown/
+Headings from h1 through h6 are constructed with a # for each level:
 
-This module implements MarkMoreDown, which is an extension to Markdown..
+    # h1 Heading
+    ## h2 Heading
+    ### h3 Heading
+    #### h4 Heading
+    ##### h5 Heading
+    ###### h6 Heading
 
-The extension is documented at:
+    <h1>h1 Heading</h1>
+    <h2>h2 Heading</h2>
+    <h3>h3 Heading</h3>
+    <h4>h4 Heading</h4>
+    <h5>h5 Heading</h5>
+    <h6>h6 Heading</h6>
 
-    http://kiavash.one/markmoredown/
+Alternatively, for H1 and H2, an underline-ish style:
+
+    Alt-H1
+    ======
+
+    Alt-H2
+    ------
+
+    <h1>Alt-H1</h1>
+    <h2>Alt-H2</h2>
+
+B<difference to standard markdown>
+
+optional labels
+
+    ## h2 #:head-label
+    #### h4 ########::my-label
+
+    <h2 id="head-label">h2</h2>
+    <h4 id="my-label">h4</h4>
+
+    Alt-h1
+    ====== :my-label
+
+    <h1 id="my-label">Alt-H1</h1>
+
+=head2 Horizontal Rules
+
+A horizontal rule for visually separating content is created by using three or
+more asterisks, dashes or underscores (these may not be mixed on a line),
+optionally separated by spaces, on an otherwise blank line. The first
+asterisk, dash or underscore may optionally be indented up to three spaces.
+
+    ***
+    ---
+    ___
+    * * * * * * * * *
+    --------
+    ______________
+
+
+    <hr>
+
+=head2 Paragraphs and Line Breaks
+
+paragraph is simply one or more consecutive lines of text, separated by one or
+more blank lines. (A blank line is any line that looks like a blank line
+— a line containing nothing but spaces or tabs is considered blank.) Normal
+paragraphs should not be indented with spaces or tabs.
+
+The implication of the “one or more consecutive lines of text” rule is that
+Markdown supports “hard-wrapped” text paragraphs. This differs significantly
+from most other text-to-HTML formatters (including Movable Type’s “Convert Line
+Breaks” option) which translate every line break character in a paragraph into
+a <br> tag.
+
+When you do want to insert a <br> break tag using Markdown, you end a line with
+two or more spaces, then type return.
+
+    Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus.
+    Et legere ocurreret pri, animal tacimates complectitur ad cum. Cu eum
+    inermis inimicus efficiendi.⋅⋅
+    Labore officiis his ex, soluta officiis
+    concludaturque ei qui, vide sensibus vim ad.
+
+    <p>
+    Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus. Et legere ocurreret pri, animal tacimates complectitur ad cum. Cu eum inermis inimicus efficiendi.
+    <br>
+    Labore officiis his ex, soluta officiisconcludaturque ei qui, vide sensibus vim ad.
+    </p>
+
+B<difference to standard markdown>
+
+=head3 >> Attribute List Definitions
+
+{= .class #id style="..." dir="..." align="..." .... }
+
+    Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus.
+    Et legere ocurreret pri, animal tacimates complectitur ad cum. Cu eum
+    inermis inimicus efficiendi.⋅⋅
+    Labore officiis his ex, soluta officiis
+    concludaturque ei qui, vide sensibus vim ad.
+    {= .class #entry .more align="center" #body width="200px" }
+
+    <p class="class more" id="entry body" align="left" width="200px">
+    Lorem ipsum dolor sit amet, graecis denique ei vel, at duo primis mandamus. Et legere ocurreret pri, animal tacimates complectitur ad cum. Cu eum inermis inimicus efficiendi.
+    <br>
+    Labore officiis his ex, soluta officiisconcludaturque ei qui, vide sensibus vim ad.
+    </p>
+
+=head2 Emphasis
+
+B<Bold>
+
+For emphasizing a snippet of text with a heavier font-weight.
+
+The following snippet of text is rendered as bold text.
+
+    **rendered as bold text**
+
+    <strong>rendered as bold text</strong>
+
+B<Italics>
+
+For emphasizing a snippet of text with italics.
+
+    _rendered as italicized text_
+
+    <em>rendered as italicized text</em>
+
+B<Mark>
+
+    mark element defines ==marked== or ==highlighted== text
+
+    mark element defines <mar>marked</mark> or <mark>highlighted</mark> text
+
+B<Inserted text>
+
+    ins element defines ++inserted++ (added) text.
+
+    ins element defines <ins>inserted</ins> (added) text.
+
+B<Small>
+
+    small element defines --smaller-- text
+
+    small element defines <small>smaller</small> text
+
+B<strikethrough, deleted text>
+
+    ~~Strike through this text.~~
+
+    <del>Strike through this text.</del>
+
+B<Deleted/Inserted Text>
+
+    ~~this is incorrect ~> this is correct~~
+
+    <de>this is incorrect</del> <ins>this is correct</ins>
+
+one space before and after ~> is optional
+
+B<Superscript text>
+
+    x^y + z^
+
+    x<sup>y + z</sup>
+
+B<Subscript text>
+
+    text~index~
+
+    text<sub>index</sub>
+
+    C~6~H~12~O~6~
+
+    C<sub>6</sub>H<sub>12</sub>O<sub>6</sub>
+
+=head2 Lists
+
+Markdown supports ordered (numbered) and unordered (bulleted) lists.
+
+=head3 Unordered Lists
+
+Unordered lists use asterisks, pluses, and hyphens — interchangably — as list
+markers.
+
++ Lorem ipsum dolor sit amet
++ Consectetur adipiscing elit
++ Integer molestie lorem at massa
++ Facilisis in pretium nisl aliquet
++ Nulla volutpat aliquam velit
+  - Phasellus iaculis neque
+    * Purus sodales ultricies
+    * Vestibulum laoreet porttitor sem
+  - Ac tristique libero volutpat at
++ Faucibus porta lacus fringilla vel
++ Aenean sit amet erat nunc
++ Eget porttitor lorem
+
+<ul>
+  <li>Lorem ipsum dolor sit amet</li>
+  <li>Consectetur adipiscing elit</li>
+  <li>Integer molestie lorem at massa</li>
+  <li>Facilisis in pretium nisl aliquet</li>
+  <li>Nulla volutpat aliquam velit
+    <ul>
+      <li>Phasellus iaculis neque</li>
+        <ul>
+            <li>Purus sodales ultricies</li>
+            <li>Vestibulum laoreet porttitor sem</li>
+        </ul>
+      <li>Ac tristique libero volutpat at</li>
+    </ul>
+  </li>
+  <li>Faucibus porta lacus fringilla vel</li>
+  <li>Aenean sit amet erat nunc</li>
+  <li>Eget porttitor lorem</li>
+</ul>
+
++ item
+- item
+* item
+
+=head3 Ordered Lists
+
+A list of items in which the order of items does explicitly matter.
+
+    1. Lorem ipsum dolor sit amet
+    2. Consectetur adipiscing elit
+        1. item
+            - unordered item
+            - unordered item
+        2. item
+        3. item
+    3. Integer molestie lorem at massa
+    4. Facilisis in pretium nisl aliquet
+    5. Nulla volutpat aliquam velit
+    6. Faucibus porta lacus fringilla vel
+    7. Aenean sit amet erat nunc
+    8. Eget porttitor lorem
+
+=head3  Definition Lists
+
+MarkMoreDown has support for definition lists using the same syntax used in
+PHP Markdown Extra. Specifically:
+
+    Apple
+    :   Pomaceous fruit of plants of the genus Malus in
+        the family Rosaceae.
+    :   An american computer company.
+
+    Orange
+    :   The fruit of an evergreen tree of the genus Citrus.
+
+becomes:
+
+    <dl>
+    <dt>Apple</dt>
+    <dd>Pomaceous fruit of plants of the genus Malus in
+    the family Rosaceae.</dd>
+
+    <dt>Orange</dt>
+    <dd>The fruit of an evergreen tree of the genus Citrus.</dd>
+    </dl>
+
+=head3 separator
+
+If you want to have one list directly after another one (both with the same
+list type, i.e. ordered or unordered), you need to use an EOB marker to
+separate the two:
+
+    * List one
+
+    ^
+
+    * List two
+
+=head2 BlockQuotes
+
+Markdown uses email-style > characters for blockquoting. If you’re familiar
+with quoting passages of text in an email message, then you know how to create
+a blockquote in Markdown. It looks best if you hard wrap the text and put a >
+before every line, Blockquotes can contain other Markdown elements, including
+headers, lists, and code blocks
+
+    > This is a blockquote . Lorem ipsum dolor sit amet,
+    > consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+    > Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
+    >
+    > This is a blockquote with two paragraphs. Lorem ipsum dolor sit amet,
+    consectetuer adipiscing elit. Aliquam hendrerit mi posuere lectus.
+    Vestibulum enim wisi, viverra nec, fringilla in, laoreet vitae, risus.
+    > > This is nested blockquote.
+    > ## This is a header.
+
+    > 1.   This is the first list item.
+    > 2.   This is the second list item.
+    >
+    > Here's some example code:
+    >
+
+B<separator>
+
+    If you want to have one list directly after another one (both with the same
+    list type, i.e. ordered or unordered), you need to use an EOB marker to
+    separate the two:
+
+=head2 Links
+
+Markdown supports two style of links: inline and reference.
+
+In both styles, the link text is delimited by [square brackets].
+
+=head3 inline-style links
+
+To create an inline link, use a set of regular parentheses immediately after
+the link text’s closing square bracket. Inside the parentheses, put the URL
+where you want the link to point, along with an optional title for the link,
+surrounded in quotes. For example:
+
+    This is [an example](http://kiavash.one/ "Title") inline link.
+
+    [This link](http://kiavash.one/) has no title attribute.
+
+If you’re referring to a local resource on the same server, you can use
+relative paths:
+
+    See my [About](/about/) page for details.
+
+=head3 reference-style links
+
+Reference-style links use a second set of square brackets, inside which you
+place a label of your choosing to identify the link:
+
+    This is [an example][id] reference-style link.
+
+You can optionally use a space to separate the sets of brackets:
+
+    This is [an example] [id] reference-style link.
+
+Then, anywhere in the document, you define your link label like this, on a line by itself:
+
+    [id]: http://kiavash.one/  "Optional Title Here"
+
+The implicit link name shortcut allows you to omit the name of the link, in
+which case the link text itself is used as the name. Just use an empty set of
+square brackets
+
+    this is a link [kiavash][]
+
+    [kiavash]: http://kiavash.one
+
+=head3 Link Attributes
+
+you can set the attributes on certain elements using an attribute block. put
+the special attribute block {} immediately after the parenthesis or brackets
+containing the address.
+
+    This is [an example][id]{.class1 .class2 #id1 style="..." #id3 other-attributes}
+
+    [This link](http://kiavash.one/){.class1 .class2 #id1 style="..." #id3 other-attributes}
+
+B<dont use spaces in attributes.>
+
+wrong
+
+    style="border: 1px; width: 150px"
+
+correct
+
+    style="border:1px;width:150px"
+
+=head2 Images
+
+Admittedly, it’s fairly difficult to devise a “natural” syntax for placing
+images into a plain text document format.
+
+Markdown uses an image syntax that is intended to resemble the syntax for links,
+allowing for two styles: inline and reference.
+
+=head3 Inline Images
+
+Inline image syntax looks like this:
+
+    ![Alt text](/path/to/img.jpg)
+
+    ![Alt text](/path/to/img.jpg "Optional title")
+
+=head3 Reference-style Image
+
+Reference-style image syntax looks like this:
+
+    ![Alt text][id]
+
+Where “id” is the name of a defined image reference. Image references are
+defined using syntax identical to link references:
+
+    [id]: url/to/image  "Optional title attribute"
+
+=head3 Image Attributes
+
+you can set the attributes on certain elements using an attribute block. put
+the special attribute block {} immediately after the parenthesis or brackets
+containing the address.
+
+    ![Alt text](/path/to/img.jpg){.class1 .class2 #id1 style="..." #id3 width="100px" height="100px"}
+
+    ![Alt text][id]{.class1 .class2 #id1 style="border:2px;max-width:100%" #id3 other-attributes}
+
+B<dont use spaces in attributes.>
+
+wrong
+
+    style="border: 1px; width: 150px"
+
+correct
+
+    style="border:1px;width:150px"
+
+=head2 Codes
+
+=head3 Inline code
+
+To indicate a span of code, wrap it with backtick quotes (`). Unlike a
+pre-formatted code block, a code span indicates code within a normal paragraph.
+For example:
+
+    Use the `printf()` function.
+
+will produce:
+
+    Use the <code>printf()</code> function.
+
+
+=head3 Code Blocks
+
+Pre-formatted code blocks are used for writing about programming or markup
+source code. Rather than forming normal paragraphs, the lines of a code block
+are interpreted literally. Markdown wraps a code block in both <pre> and <code>
+tags.
+
+To produce a code block in Markdown, simply indent every line of the block by
+at least 4 spaces or 1 tab. For example, given this input:
+
+    This is a normal paragraph:
+
+        This is a code block.
+
+Markdown will generate:
+
+    <p>This is a normal paragraph:</p>
+
+    <pre><code>This is a code block.
+    </code></pre>
+
+One level of indentation — 4 spaces or 1 tab — is removed from each line of the
+code block. For example, this:
+
+    Here is an example of AppleScript:
+
+        tell application "Foo"
+            beep
+        end tell
+
+will turn into:
+
+    <p>Here is an example of AppleScript:</p>
+
+    <pre><code>tell application "Foo"
+        beep
+        end tell
+    </code></pre>
+
+=head3 separator
+
+you can separate code blocks with ^
+
+        code block1
+        code block1
+
+    ^
+
+        code block2
+        code block2
+
+=head3 Block code "fences"
+
+Use "fences" ``` to block in multiple lines of code.
+
+    ```
+    codes...
+    ```
+
+or
+
+    ``` perl
+    code...
+    code...
+    code...
+    ```
+
+    <pre><code class="language-perl">
+        code...
+        code...
+        code...
+    </code></pre>
+
+and
+
+    ``` :class-name
+    some codes...
+    ```
+
+    <pre><code class="class-name">
+    some codes...
+    </code></pre>
+
+=head2 Tables
+
+    |              | Grouping                    ||
+    | First Header | Second Header | Third Header |
+    | ------------ | :-----------: | -----------: |
+    | Content      | *Long Cell*                 ||
+    | Content      | **Cell**      | Cell         |
+    | New section  | More          | Data         |
 
 =head1 OPTIONS
 
@@ -2775,17 +3213,10 @@ The options for the processor are:
 
 =over
 
-=item use_metadata
-
-Controls the metadata options below.
-
-=item strip_metadata
-
-If true, any metadata in the input document is removed from the output document (note - does not take effect in complete document format).
-
 =item empty element suffix
 
-This option can be used to generate normal HTML output. By default, it is ' />', which is xHTML, change to '>' for normal HTML.
+This option can be used to generate normal HTML output. By default, it is '>',
+which is HTML, change to ' />' for xHTML.
 
 =item img_ids
 
@@ -2796,10 +3227,6 @@ Turn off for compatibility with the original markdown.
 
 Controls if <hX> tags generated have an id attribute. Defaults to true.
 Turn off for compatibility with the original markdown.
-
-=item bibliography_title
-
-The title of the generated bibliography, defaults to 'Bibliography'.
 
 =item tab_width
 
@@ -2823,91 +3250,16 @@ If true, this disables the MarkMoreDown definition list handling.
 
 =back
 
-A number of possible items of metadata can also be supplied as options.
-Note that if the use_metadata is true then the metadata in the document will overwrite the settings on command line.
-
-Metadata options supported are:
-
-=over
-
-=item document_format
-
-=item use_wikilinks
-
-=item base_url
-
-=item self_url - The document url is prepended to the "#" anchor of footnotes.
-
-=back
-
-=head1 METADATA
-
-MarkMoreDown supports the concept of 'metadata', which allows you to specify a number of formatting options
-within the document itself. Metadata should be placed in the top few lines of a file, on value per line as colon separated key/value pairs.
-The metadata should be separated from the document with a blank line.
-
-Most metadata keys are also supported as options to the constructor, or options
-to the markdown method itself. (Note, as metadata, keys contain space, whereas options the keys are underscore separated.)
-
-You can attach arbitrary metadata to a document, which is output in HTML <META> tags if unknown, see t/11document_format.t for more info.
-
-A list of 'known' metadata keys, and their effects are listed below:
-
-=over
-
-=item document format
-
-If set to 'complete', MarkMoreDown will render an entire xHTML page, otherwise it will render a document fragment
-
-=over
-
-=item css
-
-Sets a CSS file for the file, if in 'complete' document format.
-
-=item title
-
-Sets the page title, if in 'complete' document format.
-
-=back
-
-=item use wikilinks
-
-If set to '1' or 'on', causes links that are WikiWords to automatically be processed into links.
-
-=item base url
-
-This is the base URL for referencing wiki pages. In this is not supplied, all wiki links are relative.
-
-=back
-
 =head1 METHODS
 
 =head2 new
 
 A simple constructor, see the SYNTAX and OPTIONS sections for more information.
 
-=cut
-
-=head2 markdown
+=head2 markmod
 
 The main function as far as the outside world is concerned. See the SYNOPSIS
 for details on use.
-
-=cut
-
-=head1 BUGS
-
-To file bug reports or feature requests please send email to:
-
-    bug-Text-Markdown@rt.cpan.org
-
-Please include with your report: (1) the example input; (2) the output
-you expected; (3) the output Markdown actually produced.
-
-=head1 VERSION HISTORY
-
-See the Changes file for detailed release notes for this version.
 
 =head1 AUTHOR
 
@@ -2917,13 +3269,17 @@ See the Changes file for detailed release notes for this version.
     PHP port and other contributions by Michel Fortin
     http://michelf.com/
 
-    MarkMoreDown changes by Fletcher Penney
+    MultiMarkdown by Fletcher Penney
     http://fletcher.freeshell.org/
 
-    CPAN Module Text::MarkMoreDown (based on Text::Markdown by Sebastian
-    Riedel) originally by Darren Kulp (http://kulp.ch/)
+    kramdown by Thomas Leitner
+    http://kramdown.gettalong.org/
 
-    This module is maintained by: Tomas Doran http://www.bobtfish.net/
+    CPAN Module Text::MultiMarkdown by Tomas Doran
+    http://www.bobtfish.net/
+
+    MarkMoreDown by Kiavash Mazi
+    http://kiavash.one
 
 =head1 THIS DISTRIBUTION
 
@@ -2938,7 +3294,7 @@ please report them as bugs.
 
 =head1 SOURCE CODE
 
-You can find the source code repository for L<Text::Markdown> and L<Text::MarkMoreDown>
+You can find the source code repository for L<Text::Markmdown> and L<Text::Markdoredown>
 on GitHub at <http://github.com/bobtfish/text-markdown>.
 
 =head1 COPYRIGHT AND LICENSE
@@ -2947,12 +3303,12 @@ Original Code Copyright (c) 2003-2004 John Gruber
 <http://daringfireball.net/>
 All rights reserved.
 
-MarkMoreDown changes Copyright (c) 2005-2006 Fletcher T. Penney
+MultiMarkdown changes Copyright (c) 2005-2006 Fletcher T. Penney
 <http://fletcher.freeshell.org/>
 All rights reserved.
 
-Text::MarkMoreDown changes Copyright (c) 2006-2009 Darren Kulp
-<http://kulp.ch> and Tomas Doran <http://www.bobtfish.net>
+Text::MarkMoreDown changes Copyright (c) 2018 Kiavash Mazi
+<http://kiavash.one>
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
