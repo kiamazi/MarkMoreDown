@@ -153,8 +153,6 @@ The following snippet of text is rendered as bold text.
 
     <strong>rendered as bold text</strong>
 
-<strong>rendered as bold text</strong>
-
 B<Italics>
 
 For emphasizing a snippet of text with italics.
@@ -163,15 +161,11 @@ For emphasizing a snippet of text with italics.
 
     <em>rendered as italicized text</em>
 
-<em>rendered as italicized text</em>
-
 B<Mark>
 
     mark element defines ==marked== or ==highlighted== text
 
     mark element defines <mar>marked</mark> or <mark>highlighted</mark> text
-
-mark element defines <mar>marked</mark> or <mark>highlighted</mark> text
 
 B<Inserted text>
 
@@ -179,15 +173,11 @@ B<Inserted text>
 
     ins element defines <ins>inserted</ins> (added) text.
 
-ins element defines <ins>inserted</ins> (added) text.
-
 B<Small>
 
     small element defines --smaller-- text
 
     small element defines <small>smaller</small> text
-
-small element defines <small>smaller</small> text
 
 B<strikethrough, deleted text>
 
@@ -195,15 +185,11 @@ B<strikethrough, deleted text>
 
     <del>Strike through this text.</del>
 
-<del>Strike through this text.</del>
-
 B<Deleted/Inserted Text>
 
     ~~this is incorrect ~> this is correct~~
 
     <del>this is incorrect</del> <ins>this is correct</ins>
-
-<del>this is incorrect</del> <ins>this is correct</ins>
 
 one space before and after ~> is optional
 
@@ -213,7 +199,6 @@ B<Superscript text>
 
     x<sup>y + z</sup>
 
-x<sup>y + z</sup>
 
 B<Subscript text>
 
