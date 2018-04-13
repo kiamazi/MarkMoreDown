@@ -9,8 +9,8 @@
 #
 #   ---
 #
-#   MarkMoreDown (c) 2017
-#     <http://fletcherpenney.net/>
+#   MarkMoreDown (c) 2018
+#     <http://kiavash.one/>
 #
 # MarkMoreDown Version 0.0.30
 #
@@ -2644,25 +2644,25 @@ __END__
 
 =head1 NAME
 
-Text::MarkMoreDown - Convert MarkMoreDown syntax to HTML
+Text::Markmoremown - Convert MarkMoreDown syntax to HTML
 
 =head1 SYNOPSIS
 
-    use Text::MarkMoreDown 'markmod';
+    use Text::Markmoredown 'markmod';
     my $html = markmod($text);
 
-    use Text::MarkMoreDown 'markmod';
+    use Text::Markmoredown 'markmod';
     my $html = markmod( $text, {
         empty_element_suffix => '>',
         tab_width => 2,
     } );
 
-    use Text::MarkMoreDown;
-    my $m = Text::MarkMoreDown->new;
+    use Text::Markmoredown;
+    my $m = Text::Markmoredown->new;
     my $html = $m->markdown($text);
 
-    use Text::MarkMoreDown;
-    my $m = Text::MarkMoreDown->new(
+    use Text::Markmoredown;
+    my $m = Text::Markmoredown->new(
         empty_element_suffix => '>',
         tab_width => 2,
     );
