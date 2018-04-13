@@ -26,7 +26,7 @@ Text::MarkMoreDown - Convert MarkMoreDown syntax to HTML
 
 =head1 DESCRIPTION
 
-MarkMoreDown is a free MIT-licensed Ruby library for parsing and converting
+MarkMoreDown is a free MIT-licensed perl library for parsing and converting
 a superset of Markdown. It is supports standard Markdown (with some minor
 modifications) and various extensions that have inspired by PHP Markdown Extra,
 MultiMarkdown, kramdown and etc.

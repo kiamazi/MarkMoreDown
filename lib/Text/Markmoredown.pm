@@ -12,7 +12,7 @@
 #   MarkMoreDown (c) 2018
 #     <http://kiavash.one/>
 #
-# MarkMoreDown Version 0.0.33
+# MarkMoreDown Version 0.0.34
 #
 # Based on MultiMarkdown Version 2.0.b6
 
@@ -29,7 +29,7 @@ use base        'Exporter';
 use HTML::Entities qw(encode_entities);
 use Text::ASCIIMathML;
 
-our $VERSION   = '0.000033'; # 0.0.33
+our $VERSION   = '0.000034'; # 0.0.34
 $VERSION = eval $VERSION;
 our @EXPORT_OK = qw(markmod);
 
@@ -2670,7 +2670,7 @@ Text::Markmoremown - Convert MarkMoreDown syntax to HTML
 
 =head1 DESCRIPTION
 
-MarkMoreDown is a free MIT-licensed Ruby library for parsing and converting
+MarkMoreDown is a free MIT-licensed perl library for parsing and converting
 a superset of Markdown. It is supports standard Markdown (with some minor
 modifications) and various extensions that have inspired by PHP Markdown Extra,
 MultiMarkdown, kramdown and etc.
