@@ -2862,42 +2862,42 @@ Markdown supports ordered (numbered) and unordered (bulleted) lists.
 Unordered lists use asterisks, pluses, and hyphens — interchangably — as list
 markers.
 
-+ Lorem ipsum dolor sit amet
-+ Consectetur adipiscing elit
-+ Integer molestie lorem at massa
-+ Facilisis in pretium nisl aliquet
-+ Nulla volutpat aliquam velit
-  - Phasellus iaculis neque
-    * Purus sodales ultricies
-    * Vestibulum laoreet porttitor sem
-  - Ac tristique libero volutpat at
-+ Faucibus porta lacus fringilla vel
-+ Aenean sit amet erat nunc
-+ Eget porttitor lorem
+    + Lorem ipsum dolor sit amet
+    + Consectetur adipiscing elit
+    + Integer molestie lorem at massa
+    + Facilisis in pretium nisl aliquet
+    + Nulla volutpat aliquam velit
+      - Phasellus iaculis neque
+        * Purus sodales ultricies
+        * Vestibulum laoreet porttitor sem
+      - Ac tristique libero volutpat at
+      + Faucibus porta lacus fringilla vel
+      + Aenean sit amet erat nunc
+      + Eget porttitor lorem
 
-<ul>
-  <li>Lorem ipsum dolor sit amet</li>
-  <li>Consectetur adipiscing elit</li>
-  <li>Integer molestie lorem at massa</li>
-  <li>Facilisis in pretium nisl aliquet</li>
-  <li>Nulla volutpat aliquam velit
     <ul>
-      <li>Phasellus iaculis neque</li>
-        <ul>
+    <li>Lorem ipsum dolor sit amet</li>
+    <li>Consectetur adipiscing elit</li>
+    <li>Integer molestie lorem at massa</li>
+    <li>Facilisis in pretium nisl aliquet</li>
+    <li>Nulla volutpat aliquam velit
+      <ul>
+        <li>Phasellus iaculis neque</li>
+          <ul>
             <li>Purus sodales ultricies</li>
             <li>Vestibulum laoreet porttitor sem</li>
-        </ul>
-      <li>Ac tristique libero volutpat at</li>
+          </ul>
+        <li>Ac tristique libero volutpat at</li>
+      </ul>
+    </li>
+    <li>Faucibus porta lacus fringilla vel</li>
+    <li>Aenean sit amet erat nunc</li>
+    <li>Eget porttitor lorem</li>
     </ul>
-  </li>
-  <li>Faucibus porta lacus fringilla vel</li>
-  <li>Aenean sit amet erat nunc</li>
-  <li>Eget porttitor lorem</li>
-</ul>
 
-+ item
-- item
-* item
+    + item
+    - item
+    * item
 
 =head3 Ordered Lists
 
