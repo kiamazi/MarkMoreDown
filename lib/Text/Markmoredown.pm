@@ -12,7 +12,7 @@
 #   MarkMoreDown (c) 2018
 #     <http://kiavash.one/>
 #
-# MarkMoreDown Version 0.0.30
+# MarkMoreDown Version 0.0.31
 #
 # Based on MultiMarkdown Version 2.0.b6
 
@@ -29,7 +29,7 @@ use base        'Exporter';
 use HTML::Entities qw(encode_entities);
 use Text::ASCIIMathML;
 
-our $VERSION   = '0.000030'; # 0.0.30
+our $VERSION   = '0.000030'; # 0.0.31
 $VERSION = eval $VERSION;
 our @EXPORT_OK = qw(markmod);
 
