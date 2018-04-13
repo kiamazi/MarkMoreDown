@@ -559,6 +559,30 @@ and
     | Content      | **Cell**      | Cell         |
     | New section  | More          | Data         |
 
+    =head2 Maths
+
+    =head3 Math block
+
+        $$
+        MathML
+        $$
+
+    or
+
+        \\[
+        MathML
+        \\]
+
+    =head3 inline Maths
+
+        $ Math formula $
+
+    or
+
+        \\(
+        formula
+        \\)
+
 =head1 OPTIONS
 
 MarkMoreDown supports a number of options to it's processor which control the behaviour of the output document.

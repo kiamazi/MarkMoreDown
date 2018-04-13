@@ -12,7 +12,7 @@
 #   MarkMoreDown (c) 2018
 #     <http://kiavash.one/>
 #
-# MarkMoreDown Version 0.0.31
+# MarkMoreDown Version 0.0.33
 #
 # Based on MultiMarkdown Version 2.0.b6
 
@@ -29,7 +29,7 @@ use base        'Exporter';
 use HTML::Entities qw(encode_entities);
 use Text::ASCIIMathML;
 
-our $VERSION   = '0.000032'; # 0.0.31
+our $VERSION   = '0.000033'; # 0.0.33
 $VERSION = eval $VERSION;
 our @EXPORT_OK = qw(markmod);
 
@@ -3201,6 +3201,30 @@ and
     | Content      | *Long Cell*                 ||
     | Content      | **Cell**      | Cell         |
     | New section  | More          | Data         |
+
+=head2 Maths
+
+=head3 Math block
+
+    $$
+    MathML
+    $$
+
+or
+
+    \\[
+    MathML
+    \\]
+
+=head3 inline Maths
+
+    $ Math formula $
+
+or
+
+    \\(
+    formula
+    \\)
 
 =head1 OPTIONS
 
