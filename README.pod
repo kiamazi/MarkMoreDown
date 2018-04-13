@@ -565,9 +565,9 @@ and
     | Content      | **Cell**      | Cell         |
     | New section  | More          | Data         |
 
-    =head2 Maths
+=head2 Maths
 
-    =head3 Math block
+=head3 Math block
 
         $$
         MathML
@@ -579,7 +579,7 @@ and
         MathML
         \\]
 
-    =head3 inline Maths
+=head3 inline Maths
 
         $ Math formula $
 
