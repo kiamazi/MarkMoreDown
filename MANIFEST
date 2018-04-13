@@ -1,4 +1,6 @@
 bin/markmod
 lib/Text/Markmoredown.pm
+LICENSE
 Makefile.PL
 MANIFEST
+README.pod
