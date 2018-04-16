@@ -1,4 +1,4 @@
-# MarkMoreDown -- A modification of John Gruber's original Markdown
+# MarkMoreDown (markmod) -- A modification of John Gruber's original Markdown
 #	that adds new features
 #
 # Original Codes:
@@ -12,7 +12,7 @@
 #   MarkMoreDown (c) 2018
 #     <http://kiavash.one/>
 #
-# MarkMoreDown Version 0.0.34
+# MarkMoreDown Version 0.0.35
 #
 # Based on MultiMarkdown Version 2.0.b6
 
@@ -21,6 +21,7 @@ require 5.008_000;
 use strict;
 use warnings;
 use re 'eval';
+use utf8;
 
 use Digest::MD5 qw(md5_hex);
 use Encode      qw();
@@ -29,7 +30,7 @@ use base        'Exporter';
 use HTML::Entities qw(encode_entities);
 use Text::ASCIIMathML;
 
-our $VERSION   = '0.000034'; # 0.0.34
+our $VERSION   = '0.000035'; # 0.0.35
 $VERSION = eval $VERSION;
 our @EXPORT_OK = qw(markmod);
 
@@ -1485,6 +1486,8 @@ sub _EncodeCode {
 
     # Now, escape characters that are magic in Markdown:
     s! \* !$g_escape_table{'*'}!ogx;
+    s! \+ !$g_escape_table{'+'}!ogx;
+    s! \- !$g_escape_table{'-'}!ogx;
     s! _  !$g_escape_table{'_'}!ogx;
     s! ~  !$g_escape_table{'~'}!ogx;
     s! {  !$g_escape_table{'{'}!ogx;
@@ -1985,8 +1988,8 @@ sub _PrintFootnotes {
 sub _Header2Label {
     my ($self, $header) = @_;
     my $label = lc $header;
-    $label =~ s/[^A-Za-z0-9:_.-]//g;        # Strip illegal characters
-    while ($label =~ s/^[^A-Za-z]//g)
+    $label =~ s/[^\w:_.-]/_/g;        # Strip illegal characters
+    while ($label =~ s/^[^\w]//g)
         {};     # Strip illegal leading characters
     return $label;
 }
@@ -2055,7 +2058,7 @@ sub _DoTables {
         (\n|\Z)                 # End of file or 2 blank lines
     }{
         my $table = $1;
-        my $result = "<table>\n";
+        my $result = qq{<table class="markmod_table">\n};
         my @alignments;
         my $use_row_header = 0;
 
@@ -2644,7 +2647,7 @@ __END__
 
 =head1 NAME
 
-Text::Markmoremown - Convert MarkMoreDown syntax to HTML
+Text::Markmoremown (markmod) - Convert MarkMoreDown syntax to HTML
 
 =head1 SYNOPSIS
 
@@ -2670,10 +2673,10 @@ Text::Markmoremown - Convert MarkMoreDown syntax to HTML
 
 =head1 DESCRIPTION
 
-MarkMoreDown is a free MIT-licensed perl library for parsing and converting
-a superset of Markdown. It is supports standard Markdown (with some minor
-modifications) and various extensions that have inspired by PHP Markdown Extra,
-MultiMarkdown, kramdown and etc.
+MarkMoreDown (markmod) is a free MIT-licensed perl library for parsing and
+converting a superset of Markdown. It is supports standard Markdown
+(with some minor modifications) and various extensions that have inspired
+by PHP Markdown Extra, MultiMarkdown, kramdown and etc.
 
 =head1 SYNTAX
 
@@ -2708,10 +2711,10 @@ Alternatively, for H1 and H2, an underline-ish style:
 
 B<difference to standard markdown>
 
-optional labels
+optional labels, a : after #, = or -
 
     ## h2 #:head-label
-    #### h4 ######## :my-label
+    #### h4 ########:my-label
 
     <h2 id="head-label">h2</h2>
     <h4 id="my-label">h4</h4>
@@ -3225,6 +3228,10 @@ or
     \\(
     formula
     \\)
+
+=head3 Footnotes
+
+=head3 Citations
 
 =head1 OPTIONS
 
