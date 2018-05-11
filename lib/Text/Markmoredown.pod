@@ -1,24 +1,25 @@
+
 =head1 NAME
 
-Text::MarkMoreDown - Convert MarkMoreDown syntax to HTML
+Text::Markmoremown (markmod) - Convert MarkMoreDown syntax to HTML
 
 =head1 SYNOPSIS
 
-    use Text::MarkMoreDown 'markmod';
+    use Text::Markmoredown 'markmod';
     my $html = markmod($text);
 
-    use Text::MarkMoreDown 'markmod';
+    use Text::Markmoredown 'markmod';
     my $html = markmod( $text, {
         empty_element_suffix => '>',
         tab_width => 2,
     } );
 
-    use Text::MarkMoreDown;
-    my $m = Text::MarkMoreDown->new;
+    use Text::Markmoredown;
+    my $m = Text::Markmoredown->new;
     my $html = $m->markdown($text);
 
-    use Text::MarkMoreDown;
-    my $m = Text::MarkMoreDown->new(
+    use Text::Markmoredown;
+    my $m = Text::Markmoredown->new(
         empty_element_suffix => '>',
         tab_width => 2,
     );
@@ -26,10 +27,10 @@ Text::MarkMoreDown - Convert MarkMoreDown syntax to HTML
 
 =head1 DESCRIPTION
 
-MarkMoreDown is a free MIT-licensed perl library for parsing and converting
-a superset of Markdown. It is supports standard Markdown (with some minor
-modifications) and various extensions that have inspired by PHP Markdown Extra,
-MultiMarkdown, kramdown and etc.
+MarkMoreDown (markmod) is a free MIT-licensed perl library for parsing and
+converting a superset of Markdown. It is supports standard Markdown
+(with some minor modifications) and various extensions that have inspired
+by PHP Markdown Extra, MultiMarkdown, kramdown and etc.
 
 =head1 SYNTAX
 
@@ -64,10 +65,10 @@ Alternatively, for H1 and H2, an underline-ish style:
 
 B<difference to standard markdown>
 
-optional labels
+optional labels, a : after #, = or -
 
     ## h2 #:head-label
-    #### h4 ######## :my-label
+    #### h4 ########:my-label
 
     <h2 id="head-label">h2</h2>
     <h4 id="my-label">h4</h4>
@@ -198,7 +199,6 @@ B<Superscript text>
     x^y + z^
 
     x<sup>y + z</sup>
-
 
 B<Subscript text>
 
@@ -339,12 +339,6 @@ B<separator>
     If you want to have one list directly after another one (both with the same
     list type, i.e. ordered or unordered), you need to use an EOB marker to
     separate the two:
-
-    > block1
-
-    ^
-
-    > block2
 
 =head2 Links
 
@@ -569,32 +563,38 @@ and
 
 =head3 Math block
 
-        $$
-        MathML
-        $$
+    $$
+    MathML
+    $$
 
-    or
+or
 
-        \\[
-        MathML
-        \\]
+    \\[
+    MathML
+    \\]
 
 =head3 inline Maths
 
-        $ Math formula $
+    $ Math formula $
 
-    or
+or
 
-        \\(
-        formula
-        \\)
+    \\(
+    formula
+    \\)
+
+=head3 Footnotes
+
+=head3 Citations
 
 =head1 OPTIONS
 
-MarkMoreDown supports a number of options to it's processor which control the behaviour of the output document.
+MarkMoreDown supports a number of options to it's processor which control the
+behaviour of the output document.
 
-These options can be supplied to the constructor, on in a hash with the individual calls to the markdown method.
-See the synopsis for examples of both of the above styles.
+These options can be supplied to the constructor, on in a hash with the
+individual calls to the markdown method.See the synopsis for examples of both
+of the above styles.
 
 The options for the processor are:
 
@@ -681,8 +681,9 @@ please report them as bugs.
 
 =head1 SOURCE CODE
 
-You can find the source code repository for L<Text::Markmdown> and L<Text::Markdoredown>
-on GitHub at <http://github.com/bobtfish/text-markdown>.
+You can find the source code repository for L<Text::Markmdown> and L<Text::Markmoredown>
+on GitHub at <http://github.com/bobtfish/text-markdown> and
+<https://github.com/kiamazi/markmoredown>.
 
 =head1 COPYRIGHT AND LICENSE
 
@@ -724,4 +725,3 @@ liability, whether in contract, strict liability, or tort (including
 negligence or otherwise) arising in any way out of the use of this
 software, even if advised of the possibility of such damage.
 
-=cut
