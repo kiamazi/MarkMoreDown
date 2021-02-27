@@ -30,7 +30,7 @@ use base        'Exporter';
 use HTML::Entities qw(encode_entities);
 use Text::ASCIIMathML;
 
-our $VERSION   = '0.000035'; # 0.0.35
+our $VERSION   = '0.000036'; # 0.0.36
 $VERSION = eval $VERSION;
 our @EXPORT_OK = qw(markmod);
 
